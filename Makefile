@@ -117,21 +117,6 @@ mmaps_generator:
 	cp -r $(CLIENT_FOLDER)/mmaps $(BUILD_FOLDER)/data
 
 ##
-##  worldserver / authserver config file targets
-##
-#cp-etc-confs:
-#	cp local-conf/worldserver.conf $(BUILD_FOLDER)/etc/worldserver.conf
-#	cp local-conf/authserver.conf $(BUILD_FOLDER)/etc/authserver.conf
-#	# get stock conf files and put them where bins expect them to be
-#	cp $(BUILD_FOLDER)/etc/worldserver.conf.dist $(BUILD_FOLDER)/etc/worldserver.conf
-#	cp $(BUILD_FOLDER)/etc/authserver.conf.dist $(BUILD_FOLDER)/etc/authserver.conf
-#
-#prep-etc-confs: cp-etc-confs
-#	sed -i 's/DataDir = "\."/DataDir = "\.\.\/data"/' $(BUILD_FOLDER)/etc/worldserver.conf
-#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/worldserver.conf
-#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/authserver.conf
-
-##
 ## Database related targets
 ##
 cp-src-sql:
@@ -157,8 +142,29 @@ docker-build-image:
 # certainly want to transfer it to another server to host. Note that the container has already been tagged to
 # match the TrinityCore tag we built from.
 docker-tag-image: create-container-dir
-	docker tag trinitycore:latest trinitycore:BUILD_TAG
-	docker save trinitycore:BUILD_TAG > $(CONTAINER_FOLDER)/trinitycore.tar
+	docker tag trinitycore:latest trinitycore:`./get-tag.sh $(SRC_FOLDER)`
+	docker save trinitycore:`./get-tag.sh $(SRC_FOLDER)` TO $(CONTAINER_FOLDER)/trinitycore-`./get-tag.sh $(SRC_FOLDER)`.tar
 
 docker-load-image:
-	docker load -i $(CONTAINER_FOLDER)/trinitycore.tar
+	docker load -i $(CONTAINER_FOLDER)/trinitycore-`./get-tag.sh $(SRC_FOLDER)`.tar
+
+servers-up:
+	docker-compose up -d
+
+servers-down:
+	docker-compose down
+
+##
+##  worldserver / authserver config file targets
+##
+#cp-etc-confs:
+#	cp local-conf/worldserver.conf $(BUILD_FOLDER)/etc/worldserver.conf
+#	cp local-conf/authserver.conf $(BUILD_FOLDER)/etc/authserver.conf
+#	# get stock conf files and put them where bins expect them to be
+#	cp $(BUILD_FOLDER)/etc/worldserver.conf.dist $(BUILD_FOLDER)/etc/worldserver.conf
+#	cp $(BUILD_FOLDER)/etc/authserver.conf.dist $(BUILD_FOLDER)/etc/authserver.conf
+#
+#prep-etc-confs: cp-etc-confs
+#	sed -i 's/DataDir = "\."/DataDir = "\.\.\/data"/' $(BUILD_FOLDER)/etc/worldserver.conf
+#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/worldserver.conf
+#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/authserver.conf
