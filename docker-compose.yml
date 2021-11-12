@@ -26,9 +26,9 @@ services:
         - 8085:8085
         - 3443:3443 # used for remote access via telnet
         volumes:
-            - ./worldserver.conf:/opt/trinitycore/etc/worldserver.conf
-            - /etc/localtime:/etc/localtime:ro
+            - ./local-conf/worldserver.conf:/srv/wow/trinitycore/3.3.5a/etc/worldserver.conf
             - ./conduit:/var/trinityscripts:rw
+            - /etc/localtime:/etc/localtime:ro
         depends_on:
         - db
         restart: unless-stopped
@@ -43,7 +43,7 @@ services:
         ports:
         - 3724:3724
         volumes:
-            - ./authserver.conf:/opt/trinitycore/etc/authserver.conf
+            - ./local-conf/authserver.conf:/srv/wow/trinitycore/3.3.5a/etc/authserver.conf
             - /etc/localtime:/etc/localtime:ro
         depends_on:
         - world
@@ -54,6 +54,5 @@ services:
         networks:
             - trinity_network
 networks:
-
     trinity_network:
         driver: bridge

@@ -1,24 +1,41 @@
 # Creates a trinityCore server for both auth and world server
 FROM ubuntu:20.04
 
-# squelches tzdata's install prompt
+### squelches tzdata's install prompt
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y apt-utils \
-    && apt-get install -y libboost-system1.71.0 \
-    && apt-get install -y libboost-filesystem1.71.0 \
-    && apt-get install -y libboost-thread1.71.0 \
-    && apt-get install -y libboost-program-options1.71.0 \
-    && apt-get install -y libboost-iostreams1.71.0 \
-    && apt-get install -y libboost-regex1.71.0 \
-    && apt-get install -y mariadb-client \
-    && apt-get install -y libmariadbclient-dev \
-    && apt-get install -y libreadline8 \
-    && adduser -q -u 1000 trinitycore
+    && apt-get install -y \
+     apt-utils \
+     less \
+     nano \
+     vim \
+     make \
+     mariadb-client \
+     libmariadbclient-dev \
+     sudo \
+     systemctl \
+     git \
+     clang \
+     cmake \
+     make \
+     gcc \
+     g++ \
+     libmariadb-dev \
+     libmariadb-dev-compat \
+     libssl-dev \
+     libbz2-dev \
+     libreadline-dev \
+     libncurses-dev \
+     libboost-all-dev \
+     mariadb-server \
+     p7zip \
+     libmariadb-client-lgpl-dev-compat
 
+#    && adduser -q -u 1000 trinitycore
 COPY . /srv/wow/trinitycore/3.3.5a
 
+###
 ENV DEBIAN_FRONTEND=
 
 # by default, this containers will idle and do nothing. This is needed to easily run Trinity in "attended" mode

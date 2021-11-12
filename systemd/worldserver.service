@@ -1,0 +1,20 @@
+[Unit]
+Description=TrinityCore 3.3.5a World Server
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/wow/trinitycore/3.3.5a/bin
+User=root
+Group=root
+ExecStart=/srv/wow/trinitycore/3.3.5a/bin/worldserver
+
+ExecReload=/bin/kill -HUP $MAINPID; /srv/wow/trinitycore/3.3.5a/bin/worldserver
+
+ExecStop=/bin/kill -HUP $MAINPID
+
+RestartSec=10s
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -58,6 +58,9 @@ create-data-dir:
 create-sql-dir:
 	mkdir -p $(BUILD_FOLDER)/sql
 
+create-container-dir:
+	mkdir -p $(CONTAINER_FOLDER)
+
 ##
 ##
 ##
@@ -116,10 +119,17 @@ mmaps_generator:
 ##
 ##  worldserver / authserver config file targets
 ##
-cp-etc-confs:
-	# get stock conf files and put them where bins expect them to be
-	cp $(BUILD_FOLDER)/etc/worldserver.conf.dist $(BUILD_FOLDER)/etc/worldserver.conf
-	cp $(BUILD_FOLDER)/etc/authserver.conf.dist $(BUILD_FOLDER)/etc/authserver.conf
+#cp-etc-confs:
+#	cp local-conf/worldserver.conf $(BUILD_FOLDER)/etc/worldserver.conf
+#	cp local-conf/authserver.conf $(BUILD_FOLDER)/etc/authserver.conf
+#	# get stock conf files and put them where bins expect them to be
+#	cp $(BUILD_FOLDER)/etc/worldserver.conf.dist $(BUILD_FOLDER)/etc/worldserver.conf
+#	cp $(BUILD_FOLDER)/etc/authserver.conf.dist $(BUILD_FOLDER)/etc/authserver.conf
+#
+#prep-etc-confs: cp-etc-confs
+#	sed -i 's/DataDir = "\."/DataDir = "\.\.\/data"/' $(BUILD_FOLDER)/etc/worldserver.conf
+#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/worldserver.conf
+#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/authserver.conf
 
 ##
 ## Database related targets
@@ -140,4 +150,15 @@ clean-trinity-db-zip:
 ## docker related targets
 ##
 docker-build-image:
+	#cp ws.tar.gz $(BUILD_FOLDER)
 	cd $(BUILD_FOLDER) && docker build -f $(PWD)/DockerFile -t trinitycore .
+
+# Use docker save to pack our container to a tar file, then zip that because it's giant AF and we will almost
+# certainly want to transfer it to another server to host. Note that the container has already been tagged to
+# match the TrinityCore tag we built from.
+docker-tag-image: create-container-dir
+	docker tag trinitycore:latest trinitycore:BUILD_TAG
+	docker save trinitycore:BUILD_TAG > $(CONTAINER_FOLDER)/trinitycore.tar
+
+docker-load-image:
+	docker load -i $(CONTAINER_FOLDER)/trinitycore.tar
