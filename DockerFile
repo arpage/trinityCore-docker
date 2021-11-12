@@ -5,6 +5,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
+    && apt-get install -y apt-utils \
     && apt-get install -y libboost-system1.71.0 \
     && apt-get install -y libboost-filesystem1.71.0 \
     && apt-get install -y libboost-thread1.71.0 \
@@ -16,7 +17,7 @@ RUN apt-get update \
     && apt-get install -y libreadline8 \
     && adduser -q -u 1000 trinitycore
 
-COPY . /opt/trinitycore
+COPY . /srv/wow/trinitycore/3.3.5a
 
 ENV DEBIAN_FRONTEND=
 

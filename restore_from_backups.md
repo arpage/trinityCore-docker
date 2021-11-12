@@ -19,7 +19,7 @@
       docker exec -it trinity-db bash -c "mysql -u root -proot --database="characters"  < /var/dbrestore/characters.sql"
       docker exec -it trinity-db bash -c "mysql -u root -proot --database="world"  < /var/dbrestore/world.sql"
       
-- Re-enbale the two `command` lines in `docker-compose.yml` and restart
+- Re-enable the two `command` lines in `docker-compose.yml` and restart
 
       docker-compose up -d --force-recreate
 

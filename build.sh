@@ -218,6 +218,9 @@ cp ${BUILD_FOLDER}/etc/authserver.conf ${CONTAINER_FOLDER}/authserver.conf
 rm ${CONTAINER_FOLDER}/*.tar
 rm ${CONTAINER_FOLDER}/*.conf
 
+update-alternatives --install /usr/bin/cc cc /usr/bin/g++ 100
+update-alternatives --install /usr/bin/c++ c++ /usr/bin/gcc 100
+
 # phew, we're done
 DURATION=$SECONDS
 echo "build done - time taken : $((($DURATION / 60) % 60)) minutes"

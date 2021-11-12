@@ -24,7 +24,6 @@ services:
         container_name: trinity-world
         ports:
         - 8085:8085
-        - 7878:7878
         - 3443:3443 # used for remote access via telnet
         volumes:
             - ./worldserver.conf:/opt/trinitycore/etc/worldserver.conf
