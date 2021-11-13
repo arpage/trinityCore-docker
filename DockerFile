@@ -33,8 +33,8 @@ RUN apt-get update \
      libmariadb-dev \
      libmariadb-dev-compat \
      mariadb-client \
-     libmariadb-client-lgpl-dev-compat && \
-     adduser --group --home=/srv/wow/trinitycore/3.3.5a --gecos=" " --disabled-login --id=1000 wrath
+     libmariadb-client-lgpl-dev-compat \
+     && adduser --gecos ' ' --disabled-login --home /srv/wow/trinitycore/3.3.5a --uid 1000 wrath
 
 #    && adduser -q -u 1000 trinitycore
 COPY . /srv/wow/trinitycore/3.3.5a

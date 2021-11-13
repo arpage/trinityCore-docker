@@ -30,13 +30,22 @@ BUILD_TAG := TDB335.21101
 ##
 ##
 ##
-clean: clean-compile-dir clean-build-dir
+real-clean: clean-compile-dir clean-build-dir clean-conduit-dir \
+	clean-container-dir clean-client-dir clean-trinity-db-zip clean-mysql-dir
 
 clean-compile-dir:
 	-rm -rf $(SRC_FOLDER)/build
 
 clean-build-dir:
 	sudo rm -rf $(BUILD_FOLDER)
+
+clean-container-dir:
+	rm -f $(CONTAINER_FOLDER)/*
+
+clean-mysql-dir: docker-rm-all-images
+	-sudo rm -rf mysql/
+	-sudo rm -rf dbrestore/
+	-sudo rm -rf dbdumps/
 
 clean-client-dir:
 	rm -rf $(CLIENT_FOLDER)/Buildings
@@ -68,6 +77,14 @@ create-log-dir:
 create-container-dir:
 	mkdir -p $(CONTAINER_FOLDER)
 
+create-conduit-dir:
+	mkdir -p conduit
+
+clean-conduit-dir:
+	-rm -f conduit/*.sql
+	-rm -f conduit/tpwd
+	-rm -f conduit/rpwd
+
 ##
 ##
 ##
@@ -89,7 +106,7 @@ rmake:
 make-install:
 	cd $(SRC_FOLDER)/build && make install
 
-full-boulder: prereqs create-build-dir git-clone-trinity create-compile-dir \
+boulder: prereqs create-build-dir git-clone-trinity create-compile-dir \
               git-checkout-build-tag cmake rmake make-install
 
 ##
@@ -107,7 +124,7 @@ prereqs:
 ##
 ## extract data from WoW client, this is where the real time penalty hits
 ##
-client-extract: mapextractor vmap4extractor vmap4assembler mmaps_generator
+client-extract: clean-client-dir mapextractor vmap4extractor vmap4assembler mmaps_generator
 
 mapextractor: create-data-dir
 	cd $(CLIENT_FOLDER) && $(BUILD_FOLDER)/bin/mapextractor
@@ -125,6 +142,10 @@ mmaps_generator:
 	mkdir -p $(CLIENT_FOLDER)/mmaps
 	cd $(CLIENT_FOLDER) && $(BUILD_FOLDER)/bin/mmaps_generator
 	cp -r $(CLIENT_FOLDER)/mmaps $(BUILD_FOLDER)/data
+
+full-boulder: boulder client-extract
+
+fresh-boulder: real-clean full-boulder
 
 ##
 ## Database related targets
@@ -154,12 +175,23 @@ docker-build-image:
 # Use docker save to pack our container to a tar file, then zip that because it's giant AF and we will almost
 # certainly want to transfer it to another server to host. Note that the container has already been tagged to
 # match the TrinityCore tag we built from.
-docker-tag-image: create-container-dir
+docker-tag-image:
 	docker tag trinitycore:latest trinitycore:$(BUILD_TAG)
+
+docker-save-image: create-container-dir
 	docker save trinitycore:$(BUILD_TAG) > $(CONTAINER_FOLDER)/trinitycore-$(BUILD_TAG).tar
 
 docker-load-image:
 	docker load -i $(CONTAINER_FOLDER)/trinitycore-$(BUILD_TAG).tar
+
+docker-rm-image: docker-rm-containers
+	-docker rmi trinitycore:$(BUILD_TAG) trinitycore:latest
+
+docker-rm-containers:
+	-docker rm trinity-db trinity-world trinity-auth
+
+docker-rm-all-images: docker-rm-image
+	-docker rmi mariadb:10.5.1
 
 ##
 ## docker-compose targets
@@ -170,17 +202,27 @@ servers-up:
 servers-down:
 	docker-compose down
 
-##
-##  worldserver / authserver config file targets
-##
-#cp-etc-confs:
-#	cp local-conf/worldserver.conf $(BUILD_FOLDER)/etc/worldserver.conf
-#	cp local-conf/authserver.conf $(BUILD_FOLDER)/etc/authserver.conf
-#	# get stock conf files and put them where bins expect them to be
-#	cp $(BUILD_FOLDER)/etc/worldserver.conf.dist $(BUILD_FOLDER)/etc/worldserver.conf
-#	cp $(BUILD_FOLDER)/etc/authserver.conf.dist $(BUILD_FOLDER)/etc/authserver.conf
-#
-#prep-etc-confs: cp-etc-confs
-#	sed -i 's/DataDir = "\."/DataDir = "\.\.\/data"/' $(BUILD_FOLDER)/etc/worldserver.conf
-#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/worldserver.conf
-#	sed -i 's/LogsDir = ""/LogsDir = "\.\.\/log"/' $(BUILD_FOLDER)/etc/authserver.conf
+db-create:
+	[ -f conduit/tpwd ] || pwgen -c -n -1 12 > conduit/tpwd
+	cp $(BUILD_FOLDER)/sql/create/create_mysql.sql conduit/
+	cp -p trinity-db-create.sh conduit/
+	sed -i "s/ED BY 'trinity'/ED BY '`cat conduit/tpwd`'/" conduit/create_mysql.sql
+	docker exec -it trinity-db '/var/trinityscripts/trinity-db-create.sh'
+	rm conduit/trinity-db-create.sh
+	rm conduit/create_mysql.sql
+
+db-drop:
+	cp $(BUILD_FOLDER)/sql/create/drop_mysql.sql conduit/
+	cp -p trinity-db-drop.sh conduit/
+	docker exec -it trinity-db '/var/trinityscripts/trinity-db-drop.sh'
+	rm conduit/trinity-db-drop.sh
+	rm conduit/drop_mysql.sql
+
+db-restore:
+	cp local-sql/20*.sql conduit/
+	cp -p trinity-db-restore.sh conduit/
+	docker exec -it trinity-db '/var/trinityscripts/trinity-db-restore.sh'
+	rm conduit/trinity-db-restore.sh
+	rm conduit/20*.sql
+
+db-backup:
