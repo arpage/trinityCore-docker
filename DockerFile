@@ -11,8 +11,10 @@ RUN apt-get update \
      nano \
      vim \
      make \
-     mariadb-client \
-#     libmariadbclient-dev \
+     pwgen \
+     net-tools \
+     iputils-ping \
+     supervisor \
      sudo \
      systemctl \
      git \
@@ -21,16 +23,18 @@ RUN apt-get update \
      make \
      gcc \
      g++ \
-     libmariadb-dev \
-     libmariadb-dev-compat \
      libssl-dev \
      libbz2-dev \
      libreadline-dev \
      libncurses-dev \
      libboost-all-dev \
-     mariadb-server \
      p7zip \
-     libmariadb-client-lgpl-dev-compat
+     mariadb-server \
+     libmariadb-dev \
+     libmariadb-dev-compat \
+     mariadb-client \
+     libmariadb-client-lgpl-dev-compat && \
+     adduser --group --home=/srv/wow/trinitycore/3.3.5a --gecos=" " --disabled-login --id=1000 wrath
 
 #    && adduser -q -u 1000 trinitycore
 COPY . /srv/wow/trinitycore/3.3.5a

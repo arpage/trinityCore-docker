@@ -1,0 +1,5 @@
+*.gz
+*.tar.gz
+*.tar
+local-sql/*.sql
+

@@ -34,7 +34,8 @@ services:
         - db
         restart: unless-stopped
         # uncomment this line to when you are ready to start trinity
-        # command: /bin/sh -c "cd /opt/trinitycore/bin && ./worldserver"
+        # command: /bin/sh -c "cd /srv/wow/trinitycore/3.3.5a/bin && ./worldserver"
+        command: /bin/bash -c "systemctl enable worldserver.service"
         networks:
             - trinity_network
 
@@ -52,7 +53,8 @@ services:
         - db
         restart: unless-stopped
         # uncomment this line to when you are ready to start trinity
-        # command: /bin/sh -c  "cd /opt/trinitycore/bin && ./authserver"
+        # command: /bin/sh -c  "cd /srv/wow/trinitycore/3.3.5a/bin && ./authserver"
+        command: /bin/bash -c "systemctl enable authserver.service"
         networks:
             - trinity_network
 networks:
