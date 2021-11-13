@@ -23,6 +23,10 @@ CONTAINER_FOLDER := /home/$(USER)/projects/wow/TrinityContainers
 # overbook threads to use for build. You want to build at full tilt, it speeds the build up tremendously
 BUILD_THREAD_COUNT := 18
 
+# Look into manually grabbing the latest tag...
+BUILD_TAG := TDB335.21101
+#BUILD_TAG_DATE := TDB335.21101
+
 ##
 ##
 ##
@@ -58,6 +62,9 @@ create-data-dir:
 create-sql-dir:
 	mkdir -p $(BUILD_FOLDER)/sql
 
+create-log-dir:
+	mkdir -p $(BUILD_FOLDER)/log
+
 create-container-dir:
 	mkdir -p $(CONTAINER_FOLDER)
 
@@ -65,10 +72,10 @@ create-container-dir:
 ##
 ##
 git-clone-trinity:
-	cd $(SRC_FOLDER) || git clone -b 3.3.5 git://github.com/TrinityCore/TrinityCore.git $(SRC_FOLDER)
+	@cd $(SRC_FOLDER) || git clone -b 3.3.5 git://github.com/TrinityCore/TrinityCore.git $(SRC_FOLDER)
 
 git-checkout-build-tag:
-	cd $(SRC_FOLDER) && git checkout `git describe --tags --abbrev=0`
+	@cd $(SRC_FOLDER) && git checkout $(BUILD_TAG)
 
 ##
 ##
@@ -82,7 +89,8 @@ rmake:
 make-install:
 	cd $(SRC_FOLDER)/build && make install
 
-full-boulder: prereqs create-build-dir git-clone-trinity create-compile-dir git-checkout-build-tag cmake rmake make-install
+full-boulder: prereqs create-build-dir git-clone-trinity create-compile-dir \
+              git-checkout-build-tag cmake rmake make-install
 
 ##
 ## System setup
@@ -99,6 +107,8 @@ prereqs:
 ##
 ## extract data from WoW client, this is where the real time penalty hits
 ##
+client-extract: mapextractor vmap4extractor vmap4assembler mmaps_generator
+
 mapextractor: create-data-dir
 	cd $(CLIENT_FOLDER) && $(BUILD_FOLDER)/bin/mapextractor
 	cp -r $(CLIENT_FOLDER)/dbc $(CLIENT_FOLDER)/maps $(BUILD_FOLDER)/data
@@ -119,11 +129,13 @@ mmaps_generator:
 ##
 ## Database related targets
 ##
+db-pull: cp-src-sql wget-trinity-db-fragment unzip-trinity-db-fragment clean-trinity-db-zip
+
 cp-src-sql:
 	cp -R $(SRC_FOLDER)/sql $(BUILD_FOLDER)
 
 wget-trinity-db-fragment:
-	./get-tagged-db.sh $(BUILD_FOLDER) $(SRC_FOLDER)
+	./get-tagged-db.sh $(BUILD_FOLDER) $(SRC_FOLDER) $(BUILD_TAG)
 
 unzip-trinity-db-fragment:
 	7z x $(BUILD_FOLDER)/bin/fulldb.7z -o$(BUILD_FOLDER)/bin -aoa
@@ -134,20 +146,24 @@ clean-trinity-db-zip:
 ##
 ## docker related targets
 ##
+docker-create: create-log-dir docker-build-image docker-tag-image docker-load-image
+
 docker-build-image:
-	#cp ws.tar.gz $(BUILD_FOLDER)
 	cd $(BUILD_FOLDER) && docker build -f $(PWD)/DockerFile -t trinitycore .
 
 # Use docker save to pack our container to a tar file, then zip that because it's giant AF and we will almost
 # certainly want to transfer it to another server to host. Note that the container has already been tagged to
 # match the TrinityCore tag we built from.
 docker-tag-image: create-container-dir
-	docker tag trinitycore:latest trinitycore:`./get-tag.sh $(SRC_FOLDER)`
-	docker save trinitycore:`./get-tag.sh $(SRC_FOLDER)` TO $(CONTAINER_FOLDER)/trinitycore-`./get-tag.sh $(SRC_FOLDER)`.tar
+	docker tag trinitycore:latest trinitycore:$(BUILD_TAG)
+	docker save trinitycore:$(BUILD_TAG) > $(CONTAINER_FOLDER)/trinitycore-$(BUILD_TAG).tar
 
 docker-load-image:
-	docker load -i $(CONTAINER_FOLDER)/trinitycore-`./get-tag.sh $(SRC_FOLDER)`.tar
+	docker load -i $(CONTAINER_FOLDER)/trinitycore-$(BUILD_TAG).tar
 
+##
+## docker-compose targets
+##
 servers-up:
 	docker-compose up -d
 

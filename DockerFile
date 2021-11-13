@@ -1,5 +1,5 @@
 # Creates a trinityCore server for both auth and world server
-FROM ubuntu:20.04
+FROM ubuntu:21.10
 
 ### squelches tzdata's install prompt
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,7 +12,7 @@ RUN apt-get update \
      vim \
      make \
      mariadb-client \
-     libmariadbclient-dev \
+#     libmariadbclient-dev \
      sudo \
      systemctl \
      git \
