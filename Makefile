@@ -27,6 +27,8 @@ BUILD_THREAD_COUNT := 18
 BUILD_TAG := TDB335.21101
 #BUILD_TAG_DATE := TDB335.21101
 
+RESTORE_TIMESTAMP := 20211113
+
 ##
 ##
 ##
@@ -156,7 +158,7 @@ cp-src-sql:
 	cp -R $(SRC_FOLDER)/sql $(BUILD_FOLDER)
 
 wget-trinity-db-fragment:
-	./get-tagged-db.sh $(BUILD_FOLDER) $(SRC_FOLDER) $(BUILD_TAG)
+	./scripts/get-tagged-db.sh $(BUILD_FOLDER) $(SRC_FOLDER) $(BUILD_TAG)
 
 unzip-trinity-db-fragment:
 	7z x $(BUILD_FOLDER)/bin/fulldb.7z -o$(BUILD_FOLDER)/bin -aoa
@@ -205,7 +207,7 @@ servers-down:
 db-create:
 	[ -f conduit/tpwd ] || pwgen -c -n -1 12 > conduit/tpwd
 	cp $(BUILD_FOLDER)/sql/create/create_mysql.sql conduit/
-	cp -p trinity-db-create.sh conduit/
+	cp -p scripts/trinity-db-create.sh conduit/
 	sed -i "s/ED BY 'trinity'/ED BY '`cat conduit/tpwd`'/" conduit/create_mysql.sql
 	docker exec -it trinity-db '/var/trinityscripts/trinity-db-create.sh'
 	rm conduit/trinity-db-create.sh
@@ -213,16 +215,20 @@ db-create:
 
 db-drop:
 	cp $(BUILD_FOLDER)/sql/create/drop_mysql.sql conduit/
-	cp -p trinity-db-drop.sh conduit/
+	cp -p scripts/trinity-db-drop.sh conduit/
 	docker exec -it trinity-db '/var/trinityscripts/trinity-db-drop.sh'
 	rm conduit/trinity-db-drop.sh
 	rm conduit/drop_mysql.sql
 
 db-restore:
 	cp local-sql/20*.sql conduit/
-	cp -p trinity-db-restore.sh conduit/
+	cp -p scripts/trinity-db-restore.sh conduit/
 	docker exec -it trinity-db '/var/trinityscripts/trinity-db-restore.sh'
 	rm conduit/trinity-db-restore.sh
 	rm conduit/20*.sql
 
 db-backup:
+	cp -p scripts/trinity-db-backup.sh conduit/
+	docker exec -it trinity-db '/var/trinityscripts/trinity-db-restore.sh'
+	rm conduit/trinity-db-restore.sh
+	rm conduit/20*.sql
