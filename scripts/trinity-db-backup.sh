@@ -1,16 +1,17 @@
 #!/bin/bash
-echo=echo
+#echo="echo"
 
-RTS=$(date +"%Y%m%d")
-TRINITY_PASSWORD=$(cat /var/trinityscripts/tpwd)
+RTS=$(date +"%Y%m%d%H%M%N")
+ROOT_PASSWORD=$(cat /var/trinityscripts/rpwd)
 
 for schema in auth characters world; do
+  echo dumping $schema to /var/trinityscripts/"${RTS}.${schema}.sql"
   $echo mysqldump \
-     -u trinity --password=${TRINITY_PASSWORD} \
+     -u root --password="${ROOT_PASSWORD}" \
      --skip-lock-tables \
      --flush-logs \
      --all-tablespaces \
      --create-options \
      --flush-privileges \
-     $schema > ${RTS}.${schema}.sql
+     $schema > /var/trinityscripts/"${RTS}.${schema}.sql"
 done
