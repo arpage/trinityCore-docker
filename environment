@@ -1,3 +1,4 @@
 MYSQL_ROOT_PASSWORD=root
-MYSQL_PASSWORD=ohB0yeM7xee5
 
+### passwd is ignored:
+MYSQL_PASSWORD=ohB0yeM7xee5

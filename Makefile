@@ -199,11 +199,44 @@ docker-rm-all-images: docker-rm-image
 ##
 ## docker-compose targets
 ##
-servers-up:
+containers-up:
 	docker-compose up -d
 
-servers-down:
+containers-down:
 	docker-compose down
+
+world-shell:
+	docker exec -it trinity-world bash
+
+world-start:
+	docker exec -it trinity-world bash -c "systemctl start worldserver.service"
+
+world-status:
+	-docker exec -it trinity-world bash -c "systemctl status worldserver.service"
+
+world-stop:
+	-docker exec -it trinity-world bash -c "systemctl stop worldserver.service"
+
+world-logs:
+	docker exec -it trinity-world bash -c 'tail -f /srv/wow/trinitycore/3.3.5a/log/world-{game,db,server,gm}.log'
+
+auth-shell:
+	docker exec -it trinity-auth bash
+
+auth-start:
+	docker exec -it trinity-auth bash -c "systemctl start authserver.service"
+
+auth-status:
+	-docker exec -it trinity-auth bash -c "systemctl status authserver.service"
+
+auth-stop:
+	-docker exec -it trinity-auth bash -c "systemctl stop authserver.service"
+
+auth-logs:
+	docker exec -it trinity-auth bash -c 'tail -f /srv/wow/trinitycore/3.3.5a/log/authserver.log'
+
+db-shell:
+	docker exec -it trinity-db bash
 
 db-create:
 	[ -f conduit/tpwd ] || pwgen -c -n -1 12 > conduit/tpwd
