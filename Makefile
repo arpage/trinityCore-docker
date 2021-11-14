@@ -1,26 +1,31 @@
-######!/bin/bash
-##############################################################################################################
-# This script will build TrinityCore from source, extract all data and pack all required binaries, sql files
-# and client data into a docker image that can be instantly mounted to spawn a TrinityCore server. Please see
-# accompanying README.md for details on how to run.
+###############################################################################
+#
+#
+#
+###############################################################################
 
 USER := straypacket
 
+GIT_BRANCH := 3.3.5
+GIT_URL := git://github.com/TrinityCore/TrinityCore.git
+
 CLIENT_FOLDER := /home/$(USER)/Desktop/wotlk
 
-# path trinity will be built to. Must be abs path, /opt/trinitycore is highly recommended, this will be the
-# same path used in docker container
+# path trinity will be built to. Must be abs path, /opt/trinitycore is highly
+# recommended, this will be the same path used in docker container
 BUILD_FOLDER := /srv/wow/trinitycore/3.3.5a
 
 # path trinity source will be checked out to
 SRC_FOLDER := /home/$(USER)/projects/wow/TrinityCore
 
-# path container zips will be placed. These can be transferred to other systems to mount. Assuming you're not
-# going to push a 6+gig docker image to the official docker hub, and you probably don't have a private
-# container repo, so we're transferring images as bin files
+# path container zips will be placed. These can be transferred to other systems to
+# mount. Assuming you're not going to push a 6+gig docker image to the official docker
+# hub, and you probably don't have a private container repo, so we're transferring
+# images as bin files
 CONTAINER_FOLDER := /home/$(USER)/projects/wow/TrinityContainers
 
-# overbook threads to use for build. You want to build at full tilt, it speeds the build up tremendously
+# overbook threads to use for build. You want to build at full tilt, it speeds the
+# build up tremendously
 BUILD_THREAD_COUNT := 18
 
 # Look into manually grabbing the latest tag...
@@ -92,7 +97,7 @@ clean-conduit-dir:
 ##
 ##
 git-clone-trinity:
-	@cd $(SRC_FOLDER) || git clone -b 3.3.5 git://github.com/TrinityCore/TrinityCore.git $(SRC_FOLDER)
+	@cd $(SRC_FOLDER) || git clone -b $(GIT_BRANCH) $(GIT_URL) $(SRC_FOLDER)
 
 git-checkout-build-tag:
 	@cd $(SRC_FOLDER) && git checkout $(BUILD_TAG)
@@ -153,7 +158,8 @@ fresh-boulder: real-clean full-boulder
 ##
 ## Database related targets
 ##
-db-pull: cp-src-sql wget-trinity-db-fragment unzip-trinity-db-fragment clean-trinity-db-zip
+db-pull: cp-src-sql wget-trinity-db-fragment unzip-trinity-db-fragment \
+           clean-trinity-db-zip
 
 cp-src-sql:
 	cp -R $(SRC_FOLDER)/sql $(BUILD_FOLDER)
@@ -218,7 +224,8 @@ world-stop:
 	-docker exec -it trinity-world bash -c "systemctl stop worldserver.service"
 
 world-logs:
-	docker exec -it trinity-world bash -c 'tail -f /srv/wow/trinitycore/3.3.5a/log/world-{game,db,server,gm}.log'
+	docker exec -it trinity-world bash -c \
+       'tail -f $(BUILD_FOLDER)/log/world-{game,db,server,gm}.log'
 
 auth-shell:
 	docker exec -it trinity-auth bash
@@ -233,7 +240,8 @@ auth-stop:
 	-docker exec -it trinity-auth bash -c "systemctl stop authserver.service"
 
 auth-logs:
-	docker exec -it trinity-auth bash -c 'tail -f /srv/wow/trinitycore/3.3.5a/log/authserver.log'
+	docker exec -it trinity-auth bash -c \
+      'tail -f $(BUILD_FOLDER)/log/authserver.log'
 
 db-shell:
 	docker exec -it trinity-db bash
