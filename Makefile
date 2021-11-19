@@ -211,6 +211,11 @@ containers-up:
 containers-down:
 	docker-compose down
 
+system-up: containers-down containers-up world-start auth-start world-status auth-status
+
+##
+##
+##
 world-shell:
 	docker exec -it trinity-world bash
 
@@ -243,6 +248,9 @@ auth-logs:
 	docker exec -it trinity-auth bash -c \
       'tail -f $(BUILD_FOLDER)/log/authserver.log'
 
+##
+##
+##
 db-shell:
 	docker exec -it trinity-db bash
 
