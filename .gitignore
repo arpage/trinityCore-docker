@@ -1,7 +1,15 @@
 *.gz
 *.tar.gz
 *.tar
+
 local-sql/*.sql
 !local-sql/auth-realmlist-address.sql
+
+world-log/*
+!world-log/.gitkeep
+
+auth-log/*
+!auth-log/.gitkeep
+
 
 
