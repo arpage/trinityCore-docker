@@ -4,12 +4,13 @@
 #
 ###############################################################################
 
-USER := straypacket
+USER := ubuntu
 
 GIT_BRANCH := 3.3.5
 GIT_URL := git://github.com/TrinityCore/TrinityCore.git
 
-CLIENT_FOLDER := /home/$(USER)/Desktop/wotlk
+#CLIENT_FOLDER := /home/$(USER)/Desktop/wotlk
+CLIENT_FOLDER := "/mnt/c/WOW/World of Warcraft - WoTLK"
 
 # path trinity will be built to. Must be abs path, /opt/trinitycore is highly
 # recommended, this will be the same path used in docker container
@@ -29,11 +30,13 @@ CONTAINER_FOLDER := /home/$(USER)/projects/wow/TrinityContainers
 BUILD_THREAD_COUNT := 18
 
 # Look into manually grabbing the latest tag...
-BUILD_TAG := TDB335.21101
+BUILD_TAG := TDB335.21111
 #BUILD_TAG_DATE := TDB335.21101
 
 #RESTORE_TIMESTAMP := 20211112
-RESTORE_TIMESTAMP := 202111140030597449897
+#RESTORE_TIMESTAMP := 202111140030597449897
+#RESTORE_TIMESTAMP := 202111220155552903968
+RESTORE_TIMESTAMP := 202111222345242734107
 
 ##
 ##
@@ -125,7 +128,7 @@ prereqs:
 	sudo apt-get install \
 		git clang cmake make gcc g++ libmariadb-dev libmariadb-dev-compat \
 		libssl-dev libbz2-dev libreadline-dev libncurses-dev libboost-all-dev \
-		mariadb-server p7zip libmariadb-client-lgpl-dev-compat
+		p7zip-full libmariadb-client-lgpl-dev-compat pwgen
 	sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100
 	sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang 100
 
@@ -275,13 +278,19 @@ db-drop:
 	rm -f conduit/drop_mysql.sql
 
 db-restore:
+	-@rm -f conduit/trinity-db-auth-realmlist-address-update.sh
 	-@rm conduit/trinity-db-restore.sh
 	-@rm conduit/$(RESTORE_TIMESTAMP)*.sql
 	-cp local-sql/$(RESTORE_TIMESTAMP)*.sql conduit/
 	cp -p scripts/trinity-db-restore.sh conduit/
+	cp -p scripts/trinity-db-auth-realmlist-address-update.sh conduit/
+	cp -p local-sql/auth-realmlist-address.sql conduit/
 	docker exec -it trinity-db '/var/trinityscripts/trinity-db-restore.sh'
+	docker exec -it trinity-db '/var/trinityscripts/trinity-db-auth-realmlist-address-update.sh'
 	rm -f conduit/trinity-db-restore.sh
 	rm -f conduit/$(RESTORE_TIMESTAMP)*.sql
+	rm -f conduit/trinity-db-auth-realmlist-address-update.sh
+	rm -f conduit/auth-realmlist-address.sql
 
 db-backup:
 	-@rm -f conduit/trinity-db-backup.sh

@@ -2,4 +2,6 @@
 *.tar.gz
 *.tar
 local-sql/*.sql
+!local-sql/auth-realmlist-address.sql
+
 
