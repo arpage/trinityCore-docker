@@ -37,7 +37,8 @@ BUILD_TAG := TDB335.21111
 #RESTORE_TIMESTAMP := 202111140030597449897
 #RESTORE_TIMESTAMP := 202111220155552903968
 #RESTORE_TIMESTAMP := 202111222345242734107
-RESTORE_TIMESTAMP := 202111240433600628100
+#RESTORE_TIMESTAMP := 202111240433600628100
+RESTORE_TIMESTAMP := 202111250321518735700
 
 ##
 ##
@@ -180,7 +181,7 @@ clean-trinity-db-zip:
 ##
 ## docker related targets
 ##
-docker-create: create-log-dir docker-build-image docker-tag-image docker-load-image
+docker-create: create-log-dir docker-build-image docker-tag-image docker-save-image docker-load-image
 
 docker-build-image:
 	cd $(BUILD_FOLDER) && docker build -f $(PWD)/DockerFile -t trinitycore .
