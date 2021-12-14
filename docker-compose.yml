@@ -24,6 +24,7 @@ services:
         ports:
         - 8085:8085
         - 3443:3443 # used for remote access via telnet
+        - 7878:7878 # used for remote access via SOAP
         volumes:
             - ./systemd/worldserver.service:/etc/systemd/system/worldserver.service
             - ./local-conf/worldserver.conf:/srv/wow/trinitycore/3.3.5a/etc/worldserver.conf
