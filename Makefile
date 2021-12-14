@@ -4,7 +4,7 @@
 #
 ###############################################################################
 
-USER := ubuntu
+USER := straypacket
 
 GIT_BRANCH := 3.3.5
 GIT_URL := git://github.com/TrinityCore/TrinityCore.git
