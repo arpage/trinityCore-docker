@@ -12,3 +12,7 @@ iptables -A OUTPUT -p tcp --sport 8085 -m state --state ESTABLISHED -j ACCEPT
 # World Server - SOAP
 iptables -A INPUT -p tcp --dport 7878 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 7878 -m state --state ESTABLISHED -j ACCEPT
+
+# World Server - telnet
+iptables -A INPUT -p tcp --dport 3443 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 3443 -m state --state ESTABLISHED -j ACCEPT

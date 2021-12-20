@@ -9,8 +9,8 @@ USER := straypacket
 GIT_BRANCH := 3.3.5
 GIT_URL := git://github.com/TrinityCore/TrinityCore.git
 
-#CLIENT_FOLDER := /home/$(USER)/Desktop/wotlk
-CLIENT_FOLDER := "/mnt/c/WOW/World of Warcraft - WoTLK"
+CLIENT_FOLDER := /home/$(USER)/Desktop/wow-clients/wotlk
+#CLIENT_FOLDER := "/mnt/c/WOW/World of Warcraft - WoTLK"
 
 # path trinity will be built to. Must be abs path, /opt/trinitycore is highly
 # recommended, this will be the same path used in docker container
@@ -40,7 +40,8 @@ BUILD_TAG := TDB335.21111
 #RESTORE_TIMESTAMP := 202111240433600628100
 #RESTORE_TIMESTAMP := 202111250321518735700
 #RESTORE_TIMESTAMP := 202111272310268209276
-RESTORE_TIMESTAMP := 202111290113704408071
+#RESTORE_TIMESTAMP := 202111290113704408071
+RESTORE_TIMESTAMP := 202112141155294647801
 
 ##
 ##
@@ -178,7 +179,7 @@ unzip-trinity-db-fragment:
 	7z x $(BUILD_FOLDER)/bin/fulldb.7z -o$(BUILD_FOLDER)/bin -aoa
 
 clean-trinity-db-zip:
-	rm $(BUILD_FOLDER)/bin/fulldb.7z
+	-rm $(BUILD_FOLDER)/bin/fulldb.7z
 
 ##
 ## docker related targets

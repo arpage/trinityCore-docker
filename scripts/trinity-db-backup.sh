@@ -4,7 +4,7 @@
 RTS=$(date +"%Y%m%d%H%M%N")
 ROOT_PASSWORD=$(cat /var/trinityscripts/rpwd)
 
-for schema in auth characters world; do
+for schema in auth characters; do
   echo dumping $schema to /var/trinityscripts/"${RTS}.${schema}.sql"
   $echo mysqldump \
      -u root --password="${ROOT_PASSWORD}" \

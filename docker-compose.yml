@@ -25,6 +25,10 @@ services:
         - 8085:8085
         - 3443:3443 # used for remote access via telnet
         - 7878:7878 # used for remote access via SOAP
+        expose:
+        - '8085'
+        - '3443'
+        - '7878'
         volumes:
             - ./systemd/worldserver.service:/etc/systemd/system/worldserver.service
             - ./local-conf/worldserver.conf:/srv/wow/trinitycore/3.3.5a/etc/worldserver.conf
@@ -45,6 +49,8 @@ services:
         container_name: trinity-auth
         ports:
         - 3724:3724
+        expose:
+        - '3724'
         volumes:
             - ./systemd/authserver.service:/etc/systemd/system/authserver.service
             - ./local-conf/authserver.conf:/srv/wow/trinitycore/3.3.5a/etc/authserver.conf
